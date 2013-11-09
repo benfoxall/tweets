@@ -1,43 +1,74 @@
-// var fs = require('fs');
+var fs = require('fs'),
+    StreamParser = require('../lib/StreamParser.js'),
+    stream = require('stream'),
+    assert = require("assert");
 
-// desribe('stream parsing', function(){
-//   var parser;
-//   beforeEach(function(){
-//     var stream = fs.createReadStream('fixtures/stream.txt');
-//     parser = new StreamParser(stream);
-//   });
 
-//   it('parses the stream', function(){
-//     var items = [];
-//     parser.on('data', function(item){
-//       items.push(item);
-//     });
+describe('stream parsing', function(){
+  var source;
 
-//     parser.on('end', function(item){
-//       expect(items.length).toBe(5)
-//     });
+  beforeEach(function(){
+    source = new stream.Readable();
+    source._read = function(){};
+    parser = new StreamParser(source);
+  });
 
-//     it('emitted js objects', function(){
-//       expect(items[0].user.screen_name).toBeDefined();
-//     })
-//   })
-// })
 
-// desribe('delimeted stream parsing', function(){
-//   var parser;
-//   beforeEach(function(){
-//     var stream = fs.createReadStream('fixtures/delimited_length.txt');
-//     parser = new StreamParser(stream);
-//   });
+  it('passes messages from the source stream', function(done){
+    var count = 0;
+    parser.on('data', function(d){
+      count++;
+      if(count == 3){
+        done();
+      }
+    });
 
-//   it('also works', function(){
-//     var items = [];
-//     parser.on('data', function(item){
-//       items.push(item);
-//     });
+    source.push('{"hello":"world"}\r\n');
+    source.push('{"hello":"world"}\r\n');
+    source.push('{"hello":"world"}\r\n');
 
-//     parser.on('end', function(item){
-//       expect(items[0].user.screen_name).toBeDefined();
-//     });
-//   })
-// })
+  });
+
+
+  it('parses JSON', function(done){
+    parser.on('data', function(d){
+      assert.equal(d.hello, "world");
+      assert.equal(d.foo, "bar");
+      done();
+    });
+    source.push('{"hello":"world","foo":"bar"}\r\n');
+  });
+
+
+
+  it('fails okay with non JSON', function(done){
+    var first = true;
+
+    parser.on('data', function(d){
+      assert.equal(d.hello, "world");
+      assert.equal(d.foo, "bar");
+      done();
+    });
+    source.push('whatever\r\n');
+    source.push('foo\r\n');
+    source.push('1234\r\n');
+    source.push('{"hello":"world","foo":"bar"}\r\n');
+    source.push('1234\r\n');
+  });
+
+
+  // doesn't actually happen with twitter api - though nice to have
+  // it('can parse messages cross chunk messages', function(done){
+  //   parser.on('data', function(d){
+  //     assert.equal(d.hello, "world");
+  //     assert.equal(d.foo, "bar");
+  //     console.log("ok")
+  //     done();
+  //   });
+  //   source.push('{"hello":"world"');
+  //   source.push(',"foo":"bar"}\r\n');
+  // });
+
+
+
+})
