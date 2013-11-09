@@ -1,3 +1,6 @@
+# This doesn't work yet!
+## Still messing about with a few things
+
 ### Tweets
 
 This is a library for accessing the public twitter streaming api.  Key features are:
