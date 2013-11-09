@@ -1,8 +1,25 @@
 {
   "name": "tweets",
-  "version" : "0.0.1",
+  "version": "0.0.0",
   "description": "A library for accessing the public twitter streaming api",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:benfoxall/tweets.git"
+  },
+  "keywords": [
+    "twitter",
+    "streaming"
+  ],
   "author": "Ben Foxall <benfoxall@gmail.com>",
-  "dependencies": {},
-  "devDependencies": {},
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/benfoxall/tweets/issues"
+  }
 }
