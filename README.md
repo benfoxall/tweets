@@ -15,8 +15,10 @@ This is a library for accessing the public twitter streaming api.  Key features 
 var tweets = require('tweets');
 
 var stream = new tweets({
-  config: 'stuff',
-  goes: 'here'
+  consumer_key:        'YOUR',
+  consumer_secret:     'KEYS',
+  access_token:        ' GO ',
+  access_token_secret: 'HERE'
 });
 
 // start streaming the public twitter stream for pizza

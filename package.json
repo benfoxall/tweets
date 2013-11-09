@@ -21,5 +21,8 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/benfoxall/tweets/issues"
+  },
+  "dependencies": {
+    "oauth": "~0.9.10"
   }
 }
