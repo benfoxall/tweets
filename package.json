@@ -1,6 +1,6 @@
 {
   "name": "tweets",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A library for accessing the public twitter streaming api",
   "main": "index.js",
   "directories": {
