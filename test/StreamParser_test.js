@@ -1,5 +1,5 @@
 var fs = require('fs'),
-    StreamParser = require('../lib/StreamParser.js'),
+    Parser = require('../lib/Parser.js'),
     stream = require('stream'),
     assert = require("assert");
 
@@ -10,7 +10,7 @@ describe('stream parsing', function(){
   beforeEach(function(){
     source = new stream.Readable();
     source._read = function(){};
-    parser = new StreamParser();
+    parser = new Parser();
     source.pipe(parser);
   });
 
