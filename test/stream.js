@@ -10,7 +10,8 @@ describe('stream parsing', function(){
   beforeEach(function(){
     source = new stream.Readable();
     source._read = function(){};
-    parser = new StreamParser(source);
+    parser = new StreamParser();
+    source.pipe(parser);
   });
 
 

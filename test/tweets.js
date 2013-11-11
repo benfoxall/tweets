@@ -51,6 +51,30 @@ describe('tweets', function(){
       })
     })
 
+    describe('multiple messages', function(){
+      var tweetspy, called = false;
+
+      before(function(){
+        tweetspy = sinon.spy();
+        stream.on('tweet', function(t){
+          console.log('d>>>',t.text)
+        });
+
+        stream.on('tweet', tweetspy);
+
+        // fake some tweets coming in
+        var source = new Readable({objectMode: true});
+        source._read = function(){};
+        source.pipe(stream);
+        source.push({text:"hello world"})
+        source.push({text:"hello world"})
+      })
+
+      it('emitted a tweet event', function(){
+        assert(tweetspy.calledTwice);
+      })
+    })
+
   })
 
   describe('connecting', function(){
