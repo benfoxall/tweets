@@ -56,10 +56,6 @@ describe('tweets', function(){
 
       before(function(){
         tweetspy = sinon.spy();
-        stream.on('tweet', function(t){
-          console.log('d>>>',t.text)
-        });
-
         stream.on('tweet', tweetspy);
 
         // fake some tweets coming in
