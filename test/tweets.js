@@ -28,7 +28,7 @@ describe('tweets', function(){
     });
 
     it('opened a connection to the twitter api', function(){
-      assert(connect_spy.calledWith({track: 'pizza'}))
+      assert(connect_spy.called)
     });
 
     describe('gets a message', function(){
