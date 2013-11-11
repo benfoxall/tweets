@@ -23,7 +23,7 @@ describe('tweets', function(){
   describe('opening connection', function(){
     var connect_spy;
     beforeEach(function(){
-      connect_spy = sinon.stub(stream.connection, "connect");
+      connect_spy = sinon.stub(stream.controller, "connect");
       stream.filter({track: 'pizza'});
     });
 
@@ -73,14 +73,14 @@ describe('tweets', function(){
 
   })
 
-  describe('connecting', function(){
-    var connectionStub;
+  // describe('connecting', function(){
+  //   var connectionStub;
 
-    beforeEach(function(){
-      stream.connection = connectionStub;
-    })
+  //   beforeEach(function(){
+  //     stream.connection = connectionStub;
+  //   })
 
-  });
+  // });
 
   
 
