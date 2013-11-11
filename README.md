@@ -1,7 +1,8 @@
 # This doesn't work yet!
 ## Still messing about with a few things
 
-### Tweets
+### Tweets [![Build Status](https://travis-ci.org/benfoxall/tweets.png?branch=master)](https://travis-ci.org/benfoxall/tweets) [![Dependency Status](https://david-dm.org/benfoxall/tweets.png)](https://david-dm.org/benfoxall/tweets)
+
 
 This is a library for accessing the public twitter streaming api.  Key features are:
 
