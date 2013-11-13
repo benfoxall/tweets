@@ -28,6 +28,7 @@
   "devDependencies": {
     "mocha": "~1.14.0",
     "should": "~2.0.2",
-    "sinon": "~1.7.3"
+    "sinon": "~1.7.3",
+    "rewire": "~2.0.0"
   }
 }

@@ -1,13 +1,18 @@
 // reconnecting.js
 var sinon = require('sinon'),
+    // rewire = require("rewire"),
     assert = require('assert'),
-    Controller = require('../lib/Controller.js');
+    should = require('should'),
+    Readable = require('stream').Readable,
+    EventEmitter = require('events').EventEmitter,
+    Controller = require('../lib/Controller.js'),
+    Tweets = require('../lib/tweets.js');
 
 describe('controller', function(){
-  var controller;
+  var controller, tweets;
 
   before(function(){
-    controller = new Controller({})
+    controller = new Controller(tweets = new Tweets)
   })
 
   it('can be instantiated', function(){
@@ -15,29 +20,105 @@ describe('controller', function(){
   });
 
   describe('mutuable parameter throttle', function(){
+    var clock, connect;
 
-    var clock;
-
-    before(function () { clock = sinon.useFakeTimers(); });
-    after(function () { clock.restore(); });
+    before(function () { 
+      clock = sinon.useFakeTimers();
+      connect = sinon.stub(controller, "connect");
+    });
+    after(function () {
+      clock.restore(); 
+      connect.restore();
+    });
 
     it('is throttled', function(){
-      controller = new Controller({})
 
-      var controllerSpy = controller.connect = sinon.spy();
       controller.filter({track:'a'});
       controller.filter({track:'b'});
       controller.filter({track:'c'});
 
-      assert(controllerSpy.calledOnce)
+      assert(connect.calledOnce)
 
       // after 5 minutes
       clock.tick(1000*60*5);
 
-      assert(controllerSpy.calledTwice)
+      assert(connect.calledTwice)
 
     })
 
   })
+
+  describe('reconnecting', function(){
+
+    var requests;
+    var streams, tweetList, close;
+
+    before(function(){
+      requests = []; streams = []; tweetList = [], closes = [];
+
+      sinon.stub(controller, "makeConnection", function(){
+        var close = sinon.spy();
+        var request = new EventEmitter;
+        var stream = new Readable();
+            stream._read = function(){};
+        stream.on('close',close)
+
+        request.abort = function(){
+          stream.emit('close')
+          request.emit('close')
+        }
+
+        requests.push(request);
+        streams.push(stream);
+        closes.push(close)
+
+        return request
+      });
+
+      tweets.on('tweet', function(tweet){
+        tweetList.push(tweet)
+      })
+    });
+
+    describe('first stream', function(){
+      before(function(){
+        // tweets come through on original stream
+        controller.connect();
+        requests[0].emit('response', streams[0]);
+        streams[0].push('{"data":"a"}');
+      })
+
+      it('makes a request', function(){
+        assert.equal(1, requests.length);
+      })
+
+      describe('next stream', function(){
+        before(function(){
+          // reconnect
+          controller.connect();
+          requests[1].emit('response', streams[1]);
+          streams[1].push('{"data":"b"}');
+          streams[1].push('{"data":"c"}');
+        })
+
+        it('makes a second request', function(){
+          assert.equal(2, requests.length);
+        })
+
+        it('gets all tweets through', function(){
+          tweetList.should.eql([{data:'a'},{data:'b'},{data:'c'}]);
+        })
+
+        it('closes first request', function(){
+          assert.equal(true, closes[0].called)
+        })
+
+      })
+
+    })
+
+
+  });
+
 
 })
