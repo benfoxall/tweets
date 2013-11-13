@@ -80,6 +80,10 @@ describe('controller', function(){
       })
     });
 
+    after(function () {
+      controller.makeConnection.restore();
+    });
+
     describe('first stream', function(){
       before(function(){
         // tweets come through on original stream
@@ -119,6 +123,78 @@ describe('controller', function(){
 
 
   });
+
+
+  describe('heartbeat reconnect', function(){
+
+    var requests;
+    var streams, tweetList;
+    var clock;
+
+
+    before(function(){
+      clock = sinon.useFakeTimers();
+      requests = []; streams = []; tweetList = []
+
+      sinon.stub(controller, "makeConnection", function(){
+        var request = new EventEmitter;
+        var stream = new Readable();
+            stream._read = function(){};
+
+        request.abort = function(){
+          stream.emit('close')
+          request.emit('close')
+        }
+
+        requests.push(request);
+        streams.push(stream);
+
+        return request
+      });
+
+      controller.connect();
+
+      requests[0].emit('response', streams[0]);
+    });
+
+    after(function () {
+      clock.restore();
+      controller.makeConnection.restore();
+    });
+
+    describe('2 minutes with heartbearts', function(){
+      before(function(){
+        clock.tick(30*1000);
+        streams[0].push('\n')
+        clock.tick(30*1000);
+        streams[0].push('\n')
+        clock.tick(30*1000);
+        streams[0].push('\n')
+        clock.tick(30*1000);
+        streams[0].push('\n')
+      })
+
+      it("didn't reconnect", function(){
+        requests.length.should.eql(1)
+      })
+    })
+
+    describe('2 minutes without heartbearts', function(){
+      before(function(){
+        clock.tick(120*1000);
+        clock.tick(120*1000);
+      })
+
+      it("did reconnect", function(){
+        requests.length.should.eql(2)
+      })
+    })
+
+
+
+
+
+  })
 
 
 })
