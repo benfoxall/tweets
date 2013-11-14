@@ -1,4 +1,4 @@
-### Tweets 
+# Tweets 
 
 [![Dependency Status](https://david-dm.org/benfoxall/tweets.png)](https://david-dm.org/benfoxall/tweets) [![Build Status](https://travis-ci.org/benfoxall/tweets.png?branch=master)](https://travis-ci.org/benfoxall/tweets)
 
