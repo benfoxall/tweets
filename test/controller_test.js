@@ -62,7 +62,7 @@ describe('controller', function(){
         // tweets come through on original stream
         controller.connect();
         requests[0].emit('response', streams[0]);
-        streams[0].push('{"data":"a"}');
+        streams[0].push('{"text":"a"}');
       })
 
       it('makes a request', function(){
@@ -74,8 +74,8 @@ describe('controller', function(){
           // reconnect
           controller.connect();
           requests[1].emit('response', streams[1]);
-          streams[1].push('{"data":"b"}');
-          streams[1].push('{"data":"c"}');
+          streams[1].push('{"text":"b"}');
+          streams[1].push('{"text":"c"}');
         })
 
         it('makes a second request', function(){
@@ -83,7 +83,7 @@ describe('controller', function(){
         })
 
         it('gets all tweets through', function(){
-          tweetList.should.eql([{data:'a'},{data:'b'},{data:'c'}]);
+          tweetList.should.eql([{text:'a'},{text:'b'},{text:'c'}]);
         })
 
         it('closes first request', function(){
