@@ -33,6 +33,22 @@ setTimeout(function(){
 },1000*60*10)
 ```
 
+## Rate limiting
+
+Changing the search paramaters frequently may result in being rate limited. The [guidelines](https://dev.twitter.com/docs/streaming-apis/connecting#Rate_limiting) from twitter are:
+
+> Twitter does not make public the number of connection attempts which will cause a rate limiting to occur, but there is some tolerance for testing and development. A few dozen connection attempts from time to time will not trigger a limit. However, it is essential to stop further connection attempts for a few minutes if a HTTP 420 response is received. If your client is rate limited frequently, it is possible that your IP will be blocked from accessing Twitter for an indeterminate period of time.
+
+you can listen for rate-limit reconnects under the `reconnect` event
+
+```js
+stream.on('reconnect', function(reconnect){
+  if(reconnect.type == 'rate-limit'){
+    // do something to reduce your requests to the api
+  }
+});
+```
+
 ## Licence
 
 The MIT License (MIT)

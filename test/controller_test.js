@@ -20,35 +20,6 @@ describe('controller', function(){
     assert.ok(controller);
   });
 
-  describe('mutuable parameter throttle', function(){
-    var clock, connect;
-
-    before(function () { 
-      clock = sinon.useFakeTimers();
-      connect = sinon.stub(controller, "connect");
-    });
-    after(function () {
-      clock.restore(); 
-      connect.restore();
-    });
-
-    it('is throttled', function(){
-
-      controller.filter({track:'a'});
-      controller.filter({track:'b'});
-      controller.filter({track:'c'});
-
-      assert(connect.calledOnce)
-
-      // after 5 minutes
-      clock.tick(1000*60*5);
-
-      assert(connect.calledTwice)
-
-    })
-
-  })
-
   describe('reconnecting', function(){
 
     var requests;
