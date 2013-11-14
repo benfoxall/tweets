@@ -227,6 +227,7 @@ describe('controller', function(){
         clock.restore();
         controller.makeConnection.restore();
         controller.connection = void 0
+        controller.backoffs();
       });
 
       it('backs off exponentially', function(){
@@ -272,6 +273,7 @@ describe('controller', function(){
         clock.restore();
         controller.makeConnection.restore();
         controller.connection = void 0
+        controller.backoffs();
       });
 
       it('backs off lineraly', function(){
@@ -301,7 +303,66 @@ describe('controller', function(){
     })
 
 
-  })
 
+
+
+    describe('http errors', function(){
+      before(function(){
+        clock = sinon.useFakeTimers();
+        requests = [];
+        sinon.stub(controller, "makeConnection", function(){
+          var request = new EventEmitter;
+          var stream = new Readable();
+              stream._read = function(){};
+
+          request.abort = function(){
+            stream.emit('close')
+            request.emit('close')
+          }
+
+          stream.statusCode = 503;
+
+          requests.push(request);
+
+          setTimeout(function(){ request.emit('response', stream); },10)
+
+          return request
+        });
+      })
+
+      after(function () {
+        clock.restore();
+        controller.makeConnection.restore();
+        controller.connection = void 0
+        controller.backoffs();
+      });
+
+      it('backs off exponentially', function(){
+        controller.connect();
+        assert.equal(1,requests.length)
+
+        clock.tick(5000 + 10);
+        assert.equal(2,requests.length)
+
+
+        clock.tick(10000 + 10); 
+        assert.equal(3,requests.length)
+
+
+        clock.tick(20000 + 10); 
+        assert.equal(4,requests.length)
+
+
+        clock.tick(40000 + 10); 
+        assert.equal(5,requests.length)
+
+
+        clock.tick(80000 + 10); 
+        assert.equal(6,requests.length)
+
+      })
+    })
+
+  })
 
 })
