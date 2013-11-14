@@ -82,6 +82,7 @@ describe('controller', function(){
 
     after(function () {
       controller.makeConnection.restore();
+      controller.connection = void 0
     });
 
     describe('first stream', function(){
@@ -160,6 +161,7 @@ describe('controller', function(){
     after(function () {
       clock.restore();
       controller.makeConnection.restore();
+      controller.connection = void 0
     });
 
     describe('2 minutes with heartbearts', function(){
@@ -189,9 +191,58 @@ describe('controller', function(){
         requests.length.should.eql(2)
       })
     })
+  })
 
 
 
+  describe('backoffs', function(){
+
+    var requests, clock;
+
+    describe('rate limiting', function(){
+      before(function(){
+        clock = sinon.useFakeTimers();
+        requests = [];
+        sinon.stub(controller, "makeConnection", function(){
+          var request = new EventEmitter;
+          var stream = new Readable();
+              stream._read = function(){};
+
+          request.abort = function(){
+            stream.emit('close')
+            request.emit('close')
+          }
+
+          stream.statusCode = 420;
+
+          requests.push(request);
+
+          setTimeout(function(){ request.emit('response', stream); },10)
+
+          return request
+        });
+      })
+
+      after(function () {
+        clock.restore();
+        controller.makeConnection.restore();
+        controller.connection = void 0
+      });
+
+      it('backs off exponentially', function(){
+        controller.connect();
+        assert.equal(1,requests.length)
+
+        clock.tick(60010);
+        assert.equal(2,requests.length)
+
+        clock.tick(120010);
+        assert.equal(3,requests.length)
+
+        clock.tick(240010);
+        assert.equal(4,requests.length)
+      })
+    })
 
 
   })
