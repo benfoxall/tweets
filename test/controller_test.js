@@ -245,6 +245,62 @@ describe('controller', function(){
     })
 
 
+
+    describe('network errors', function(){
+      before(function(){
+        clock = sinon.useFakeTimers();
+        requests = [];
+        sinon.stub(controller, "makeConnection", function(){
+          var request = new EventEmitter;
+          var stream = new Readable();
+              stream._read = function(){};
+
+          request.abort = function(){
+            stream.emit('close')
+            request.emit('close')
+          }
+
+          requests.push(request);
+
+          setTimeout(function(){ request.emit('error', ''); },10)
+
+          return request
+        });
+      })
+
+      after(function () {
+        clock.restore();
+        controller.makeConnection.restore();
+        controller.connection = void 0
+      });
+
+      it('backs off lineraly', function(){
+        controller.connect();
+        assert.equal(1,requests.length)
+
+        clock.tick(10);
+        assert.equal(2,requests.length)
+
+
+        clock.tick(250 + 10); 
+        assert.equal(3,requests.length)
+
+
+        clock.tick(500 + 10); 
+        assert.equal(4,requests.length)
+
+
+        clock.tick(750 + 10); 
+        assert.equal(5,requests.length)
+
+
+        clock.tick(1000 + 10); 
+        assert.equal(6,requests.length)
+
+      })
+    })
+
+
   })
 
 
