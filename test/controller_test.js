@@ -9,10 +9,11 @@ var sinon = require('sinon'),
     Tweets = require('../lib/tweets.js');
 
 describe('controller', function(){
-  var controller, tweets;
+  var controller, tweets, reconnect;
 
   before(function(){
     controller = new Controller(tweets = new Tweets)
+    tweets.on('reconnect', reconnect = sinon.spy())
   })
 
   it('can be instantiated', function(){
@@ -201,6 +202,7 @@ describe('controller', function(){
 
     describe('rate limiting', function(){
       before(function(){
+        reconnect.reset();
         clock = sinon.useFakeTimers();
         requests = [];
         sinon.stub(controller, "makeConnection", function(){
@@ -242,6 +244,8 @@ describe('controller', function(){
 
         clock.tick(240010);
         assert.equal(4,requests.length)
+
+        assert(reconnect.calledWith({type: 'rate-limit'}))
       })
     })
 
@@ -249,6 +253,7 @@ describe('controller', function(){
 
     describe('network errors', function(){
       before(function(){
+        reconnect.reset();
         clock = sinon.useFakeTimers();
         requests = [];
         sinon.stub(controller, "makeConnection", function(){
@@ -299,6 +304,8 @@ describe('controller', function(){
         clock.tick(1000 + 10); 
         assert.equal(6,requests.length)
 
+        assert(reconnect.calledWith({type: 'network'}))
+
       })
     })
 
@@ -308,6 +315,7 @@ describe('controller', function(){
 
     describe('http errors', function(){
       before(function(){
+        reconnect.reset();
         clock = sinon.useFakeTimers();
         requests = [];
         sinon.stub(controller, "makeConnection", function(){
@@ -359,6 +367,9 @@ describe('controller', function(){
 
         clock.tick(80000 + 10); 
         assert.equal(6,requests.length)
+
+
+        assert(reconnect.calledWith({type: 'http'}))
 
       })
     })
