@@ -33,6 +33,12 @@ setTimeout(function(){
 },1000*60*10)
 ```
 
+## Credentials
+
+* Sign in to [https://dev.twitter.com/](https://dev.twitter.com/)
+* Visit [My applications](https://dev.twitter.com/apps)
+* click "create my access token"
+
 ## Rate limiting
 
 Changing the search paramaters frequently may result in being rate limited. The [guidelines](https://dev.twitter.com/docs/streaming-apis/connecting#Rate_limiting) from twitter are:
