@@ -4,7 +4,7 @@ var assert = require("assert"),
     Readable = require('stream').Readable;
 
 describe('tweets', function(){
-  var stream,
+  var stream, source
       config = {
         consumer_key:        'AAAA',
         consumer_secret:     'BBBB',
@@ -14,6 +14,9 @@ describe('tweets', function(){
 
   beforeEach(function(){
     stream = Tweets(config);
+    source = new Readable({objectMode: true});
+    source._read = function(){};
+    source.pipe(stream);
   })
 
   it('is the right kind of object', function(){
@@ -39,10 +42,6 @@ describe('tweets', function(){
 
         stream.on('tweet', tweetspy);
 
-        // fake some tweets coming in
-        var source = new Readable({objectMode: true});
-        source._read = function(){};
-        source.pipe(stream);
         source.push({text:"hello world"})
       })
 
@@ -73,24 +72,54 @@ describe('tweets', function(){
 
   })
 
-  // describe('connecting', function(){
-  //   var connectionStub;
+  describe('message types', function(){
+    var emitted;
+    before(function(){
+      emitted = function(type, message){
+        var spy = sinon.spy();
+        stream.on(type, spy);
+        source.push(message);
+        return spy.called;
+      }
+    })
+    
+    it('emits tweets', function(){
+      assert(emitted('tweet', {text:'hello'}))
+    })
 
-  //   beforeEach(function(){
-  //     stream.connection = connectionStub;
-  //   })
+    it('emits deletion notices', function(){
+      assert(emitted('delete', {"delete":{}}))
+    })
 
-  // });
+    it('emits location deletion notices', function(){
+      assert(emitted('scrub_geo', {"scrub_geo":{}}))
+    })
 
-  
+    it('emits limit notices', function(){
+      assert(emitted('limit', {"limit":{}}))
+    })
+
+    it('emits withheld conent notices', function(){
+      assert(emitted('status_withheld', {"status_withheld":{}}))
+      assert(emitted('user_withheld', {"user_withheld":{}}))
+    })
+
+    it('emits disconnect notices', function(){
+      assert(emitted('disconnect', {"disconnect":{}}))
+    })
+
+    it('emits stall warnings', function(){
+      assert(emitted('warning', {"warning":{}}))
+    })
 
 
-  // it('takes oauth config', function(){
+    // describe('tweets', function(){
+    //   before(push({text:"Hello"}));
+    //   it('emitted')
+    // })
 
-  // })
-
-
-  // it('is implemented', function(){
-  //   assert.equal(true, false, "not started tests yet")
-  // })
+  });
 })
+
+
+

@@ -49,6 +49,36 @@ stream.on('reconnect', function(reconnect){
 });
 ```
 
+## Events
+
+#### `reconnect` - a new stream has been created
+
+event.type will be one of:
+
+* 'param-change' - result of tweets.filter()
+* 'rate-limit' - reconnecting as a result of a 420 error
+* 'http' - a general non-200 response
+* 'network' - unable to connect to endpoint (eg. offline)
+
+----
+
+Message events, see [stream documentation](https://dev.twitter.com/docs/streaming-apis/messages) for details
+
+#### `message` - all messages
+
+#### `delete` - Status deletion notices
+
+#### `scrub_geo` - Location deletion notices
+
+#### `limit` - Limit notices
+
+#### `status_withheld, user_withheld` - Withheld content notices
+
+#### `disconnect` - Disconnect messages
+
+#### `warning` - Stall warnings
+
+
 ## Licence
 
 The MIT License (MIT)
